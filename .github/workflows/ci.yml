@@ -11,6 +11,8 @@ jobs:
       image: maven:3.9.6-eclipse-temurin-21
     steps:
       - uses: actions/checkout@v3
+      - name: Set up Maven
+        run: chmod +x mvnw || true
       - name: Build with Maven
         run: mvn clean package -DskipTests=false
       - name: Upload JAR
