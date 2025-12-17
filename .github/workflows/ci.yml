@@ -11,16 +11,25 @@ jobs:
       image: maven:3.9.6-eclipse-temurin-21
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set execute permission for mvnw (if exists)
-        run: chmod +x mvnw || true
-
       - name: Build with Maven
         run: mvn clean package -DskipTests=false
-
-      - name: Upload JAR artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload JAR
+        uses: actions/upload-artifact@v3
         with:
           name: app-jar
           path: ./target/*.jar
+
+  sast:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Semgrep
+        run: semgrep --config=p/ci --sarif --output=sarif-results.sarif
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: sarif-results.sarif
 
